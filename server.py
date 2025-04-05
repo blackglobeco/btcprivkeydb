@@ -1,5 +1,5 @@
 from flask import Flask, render_template
-from pycoin.key import Key 
+from pycoin.symbols.btc import network
 import math
 import random
 
@@ -9,22 +9,36 @@ MAX_EXPONENT = 11579208923731619542357098500868790785283756427907490438260516314
 KEYS_PER_PAGE = 127
 
 def max_pages():
-    m = MAX_EXPONENT//(KEYS_PER_PAGE+1)
-    return m if MAX_EXPONENT%(KEYS_PER_PAGE+1)==0 else m+1
+    m = MAX_EXPONENT // (KEYS_PER_PAGE + 1)
+    return m if MAX_EXPONENT % (KEYS_PER_PAGE + 1) == 0 else m + 1
 
 def page_range(page_num):
     from_sec = (page_num - 1) * (KEYS_PER_PAGE + 1)
-    to_sec = (page_num - 1) * (KEYS_PER_PAGE + 1) + KEYS_PER_PAGE
+    to_sec = from_sec + KEYS_PER_PAGE
     if to_sec > MAX_EXPONENT:
         to_sec = MAX_EXPONENT
-    return range(from_sec+1,to_sec+1)
+    return range(from_sec + 1, to_sec + 1)
 
 def secret_to_address(secret_exponent):
-    k = Key(secret_exponent=secret_exponent)
-    addr = k.address(use_uncompressed=True)
-    caddr = k.address()
-    wif = k.wif(use_uncompressed=True)
-    return secret_exponent, wif, addr, caddr
+    if not isinstance(secret_exponent, int) or secret_exponent <= 0 or secret_exponent >= MAX_EXPONENT:
+        return None
+
+    try:
+        # Uncompressed key
+        key_uncompressed = network.keys.private(secret_exponent)
+        key_uncompressed._is_compressed = False
+        addr = key_uncompressed.address()
+        wif = key_uncompressed.wif()
+
+        # Compressed key
+        key_compressed = network.keys.private(secret_exponent)
+        key_compressed._is_compressed = True
+        caddr = key_compressed.address()
+
+        return secret_exponent, wif, addr, caddr
+    except Exception as e:
+        print(f"Error processing secret_exponent {secret_exponent}: {e}")
+        return None
 
 @app.route('/')
 def hello_world():
@@ -33,8 +47,11 @@ def hello_world():
 @app.route('/key/<int:secret_exponent>')
 def show_address(secret_exponent):
     if secret_exponent < 1 or secret_exponent > MAX_EXPONENT:
-        return render_template('error.html', error='Invalid Key, not in range 1-{} '.format(MAX_EXPONENT))
-    sec, wif, addr, caddr = secret_to_address(secret_exponent)
+        return render_template('error.html', error=f'Invalid Key, not in range 1–{MAX_EXPONENT}')
+    result = secret_to_address(secret_exponent)
+    if not result:
+        return render_template('error.html', error='Key generation failed')
+    sec, wif, addr, caddr = result
     return render_template('key.html', sec=sec, compressed_addr=caddr, addr=addr, private_key=wif)
 
 @app.route('/key/')
@@ -49,13 +66,16 @@ def show_page(page_num):
         page_num = 1
     if page_num > max_p:
         page_num = max_p
+
     p = [secret_to_address(i) for i in page_range(page_num)]
+    p = [entry for entry in p if entry]
+    
     return render_template('page.html', page=page_num, page_elements=p, max_pages=max_p)
 
 @app.route('/page/')
 @app.route('/page/<string:foo>')
 def default_page(foo=1):
-    return show_page(foo)
+    return show_page(1)
 
 @app.route('/lottery')
 def lottery():
@@ -64,8 +84,11 @@ def lottery():
 @app.route('/gen_pair')
 def gen_pair():
     sec_exp = random.randint(1, MAX_EXPONENT)
-    _, priv, addr, _ = secret_to_address(sec_exp)
-    return '{} {}'.format(priv, addr)
+    result = secret_to_address(sec_exp)
+    if result:
+        _, priv, addr, _ = result
+        return f'{priv} {addr}'
+    return 'Key generation failed'
 
 @app.errorhandler(404)
 def not_found(error):
