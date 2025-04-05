@@ -5,7 +5,7 @@
 <link rel="stylesheet" type="text/css" href="/static/main.css">
 </head>
 <body>
-<h1>Bitcoin private key lottery</h1>
+<h1>Bitcoin Private Key Lottery</h1>
 <p>
   <button id="try" onclick="javascript:fetchPrivateKey()">Try your Luck and Win Bitcoins!!</button>
   <div id="message"></div>
@@ -23,7 +23,7 @@ function displayWin() {
     alert("YOU WON!");
     log("YOU WON!");
   } else {
-    log("No luck :(");
+    log("No luck");
   }
 }
 
@@ -51,7 +51,7 @@ function getPair() {
 
 function fetchPrivateKey() {
   document.getElementById('message').innerHTML = "";
-  log("Getting random Private Key / Address pair...");
+  log("Getting Random Private Key / Address pair...");
   getPair();
 }
 </script>
