@@ -2,6 +2,7 @@ from flask import Flask, render_template
 from pycoin.symbols.btc import network
 import math
 import random
+import os
 
 app = Flask(__name__)
 
