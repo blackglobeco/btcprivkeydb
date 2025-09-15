@@ -5,7 +5,13 @@
 <link rel="stylesheet" type="text/css" href="/static/main.css">
 </head>
 <body>
-<h1>Bitcoin Private Key Database</h1>
+<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+  <h1 style="margin: 0;">Bitcoin Private Key Database</h1>
+  <form action="/search" method="get" style="display: flex; align-items: center;">
+    <input type="text" name="address" placeholder="Search by Address" style="padding: 5px; margin-right: 10px; width: 300px;" required>
+    <button type="submit" style="padding: 5px 10px;">Search</button>
+  </form>
+</div>
 <h3>Page {{page}} of {{max_pages}}</h3>
 <p>
 <a href="{{page-1}}">previous</a> - <a href="{{page+1}}">next</a>
