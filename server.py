@@ -1,6 +1,6 @@
-import os
 from flask import Flask, render_template
 from pycoin.symbols.btc import network
+import math
 import random
 
 app = Flask(__name__)
@@ -89,6 +89,31 @@ def gen_pair():
         _, priv, addr, _ = result
         return f'{priv} {addr}'
     return 'Key generation failed'
+
+@app.route('/search')
+def search():
+    from flask import request
+    address = request.args.get('address', '').strip()
+    
+    if not address:
+        return render_template('error.html', error='Please provide an address to search')
+    
+    # Search through a reasonable range of keys (first 10000 for demo)
+    search_results = []
+    search_limit = 10000
+    
+    for i in range(1, search_limit + 1):
+        result = secret_to_address(i)
+        if result:
+            sec, wif, addr, caddr = result
+            if address == addr or address == caddr:
+                search_results.append(result)
+                break  # Found exact match
+    
+    return render_template('search_results.html', 
+                         address=address, 
+                         results=search_results,
+                         searched_range=search_limit)
 
 @app.errorhandler(404)
 def not_found(error):
