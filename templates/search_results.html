@@ -1,0 +1,49 @@
+
+<!doctype html>
+<html>
+<head>
+<title>Search Results</title>
+<link rel="stylesheet" type="text/css" href="/static/main.css">
+</head>
+<body>
+<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+  <h1 style="margin: 0;">Bitcoin Private Key Database</h1>
+  <form action="/search" method="get" style="display: flex; align-items: center;">
+    <input type="text" name="address" placeholder="Search by Address" style="padding: 5px; margin-right: 10px; width: 300px;" value="{{address}}" required>
+    <button type="submit" style="padding: 5px 10px;">Search</button>
+  </form>
+</div>
+<h3>Search Results for Address: {{address}}</h3>
+<p>Searched first {{searched_range}} private keys</p>
+
+{% if results %}
+<table>
+  <thead>
+    <th>Private Key</th>
+    <th>Address</th>
+    <th>Compressed Address</th>
+  </thead>
+  <tbody>
+{% for row in results %}
+    <tr>
+      <td><a href="/key/{{ row[0] }}" title="{{ row[0] }}">{{ row[1] }}</a></td>
+      <td><a href="https://blockchain.info/address/{{ row[2] }}">{{ row[2] }}</a></td>
+      <td><a href="https://blockchain.info/address/{{ row[3] }}">{{ row[3] }}</a></td>
+    </tr>
+{% endfor %}
+  </tbody>  
+</table>
+{% else %}
+<p>No matching address found in the searched range.</p>
+<p><strong>Note:</strong> This search only covers the first {{searched_range}} private keys. The full Bitcoin keyspace is extremely large (2^256), so comprehensive searching is not feasible.</p>
+{% endif %}
+
+<hr/>
+<p>
+<a href="/page">Back to Database</a> | <a href="/">Return to Homepage</a>
+</p>
+<p>
+Powered by Black Globe ®<br/>
+</p>
+</body>
+</html>
