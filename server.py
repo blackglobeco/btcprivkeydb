@@ -1,6 +1,6 @@
+import os
 from flask import Flask, render_template
 from pycoin.symbols.btc import network
-import math
 import random
 
 app = Flask(__name__)
@@ -93,3 +93,10 @@ def gen_pair():
 @app.errorhandler(404)
 def not_found(error):
     return render_template('error.html', code=404, error='File not found'), 404
+
+# --------------------------
+# ENTRY POINT FOR RENDER.COM
+# --------------------------
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
