@@ -26,8 +26,8 @@
 {% for row in page_elements %}
     <tr>
       <td><a href="/key/{{ row[0] }}" title="{{ row[0] }}">{{ row[1] }}</a></td>
-      <td><a href="https://blockchain.info/address/{{ row[2] }}">{{ row[2] }}</a></td>
-      <td><a href="https://blockchain.info/address/{{ row[3] }}">{{ row[3] }}</a></td>
+      <td><a href="https://blockchain.info/address/{{ row[2] }}" target="_blank" rel="noopener noreferrer">{{ row[2] }}</a></td>
+      <td><a href="https://blockchain.info/address/{{ row[3] }}" target="_blank" rel="noopener noreferrer">{{ row[3] }}</a></td>
     </tr>
 {% endfor %}
   </tbody>  
